@@ -1,0 +1,7 @@
+# Python 3.10 이상
+pycalphad>=0.12
+streamlit>=1.40
+plotly>=5.20
+pandas>=2.0
+scikit-learn>=1.4
+matplotlib>=3.8
