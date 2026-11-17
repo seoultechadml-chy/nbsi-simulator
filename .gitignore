@@ -3,3 +3,18 @@ __pycache__/
 *.pyc
 tests/output/
 .streamlit/secrets.toml
+
+# ---- 공개 저장소에 올리지 않는 것 ----
+# 사용자 데이터 (연구실 DB, 승인 기록) - 사용자 PC에만 보관
+data/raw_user/
+data/literature.csv
+data/extracted_pending.csv
+data/import_*.csv
+data/import_report.md
+data/phase_grid*.csv
+data/phase_grid*_meta.json
+# NIMS CPDDB 등 TDB 파일 - 이용 조건상 재배포 금지
+*.tdb
+*.TDB
+data/tdb_candidates/*_report.md
+data/tdb_candidates/*.png
