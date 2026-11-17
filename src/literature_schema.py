@@ -16,26 +16,38 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 
 # 조성 열 (at.% 기준으로 쓰는 것을 원칙으로 한다). 원소를 추가하려면 여기에 넣는다.
-ELEMENTS = ["Nb", "Si", "Ti", "Cr", "Al", "Hf", "Mo", "W", "Zr", "Ta", "V", "B", "Ge", "Sn", "Fe"]
+ELEMENTS = [
+    "Nb", "Si", "Ti", "Cr", "Al", "Hf", "Mo", "W", "Ta", "Zr", "V", "B", "C", "Y", "Ge", "Sn", "Fe",
+    "Ga", "Re", "Ru", "Co", "Ni", "Sc", "Mn", "Mg", "Au", "P", "Sr", "Gd", "Dy", "Ho", "Er", "Ce", "In",
+]
+# 화합물 형태로 첨가한 경우 (복합재). 원소 조성과 따로 적는다.
+ADDITIVES = ["ZrB2", "TaB2", "ZrC", "B4C", "TiC"]
 
 LITERATURE_COLUMNS = (
     ["alloy_id"]
     + ELEMENTS
+    + ADDITIVES
     + [
         "composition_basis",          # at.% 공칭 / at.% 실측 / wt.% 공칭 / wt.% 실측
-        "process",                    # 아크용해 / SPS / 방향성응고 / 유도용해 / ...
-        "heat_treatment_temp_C",      # 열처리 온도. 주조 상태(as-cast)면 빈칸 + process에 as-cast
+        "process",                    # 원문 표기 그대로 (arc melting, SPS, DS ...)
+        "process_group",              # 묶음: 용해·주조 / 방향성응고 / 분말야금·소결 / 적층제조 / 기타
+        "heat_treatment_temp_C",      # 열처리 온도. 주조 상태(as-cast)면 빈칸
         "heat_treatment_time_h",      # 열처리 시간
+        "heat_treatment2_temp_C",     # 2차 열처리 (있으면)
+        "heat_treatment2_time_h",
+        "phases_observed",            # 관찰된 상 이름 목록 (분율 없이). 예: "Nbss; Nb5Si3"
         "phase_fraction_measured",    # 예: "Nbss:45; Nb5Si3:55"
         "phase_fraction_basis",       # vol.% / area.% / wt.% 등
         "hardness_HV",
         "hardness_load_kgf",
-        "compressive_strength_MPa",
+        "compressive_strength_MPa",   # 최대 압축강도
+        "compressive_yield_MPa",      # 압축 항복강도 (0.2% 등)
         "fracture_toughness_MPam05",
         "fracture_toughness_std",     # 표준편차 또는 ± 값 (있으면)
         "toughness_method",           # SENB / chevron notch / 압입(indentation) / ...
         "test_temperature_C",
-        "source",                     # DOI 또는 "자체 측정"
+        "source",                     # DOI 또는 "자체 측정" (참고문헌 번호만 있으면 "파일:번호")
+        "year",
         "source_location",            # 예: "p.5, Table 2"
         "entry_method",               # 자동 추출 / 직접 입력 / 파일 가져오기
         "approved_by",
@@ -61,7 +73,8 @@ GRAPH_TODO_COLUMNS = ["source", "paper_title", "figure", "quantity", "note"]
 # 값이 이 범위를 크게 벗어나면 "확인 필요"로 표시한다 (오타·단위 실수 찾기용 거친 기준, 물성 데이터 아님)
 SANITY_RANGES = {
     "hardness_HV": (50, 2500),
-    "compressive_strength_MPa": (50, 6000),
+    "compressive_strength_MPa": (20, 6000),
+    "compressive_yield_MPa": (20, 6000),
     "fracture_toughness_MPam05": (0.5, 60),
     "test_temperature_C": (-273, 2000),
     "heat_treatment_temp_C": (200, 2200),
@@ -98,7 +111,7 @@ def check_rows(df: pd.DataFrame) -> pd.Series:
     flags = []
     for _, r in df.iterrows():
         f = []
-        comp = pd.to_numeric(pd.Series({e: r.get(e) for e in ELEMENTS if e in df.columns}), errors="coerce")
+        comp = pd.to_numeric(pd.Series({e: r.get(e) for e in ELEMENTS + ADDITIVES if e in df.columns}), errors="coerce")
         if comp.notna().any():
             s = comp.fillna(0).sum()
             if abs(s - 100) > 0.5:
