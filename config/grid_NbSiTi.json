@@ -1,0 +1,14 @@
+{
+  "_설명": "3차 목표: Nb-Si-Ti 삼원계. 삼원계 TDB를 승인받은 뒤에 사용한다. Cr, Al, Hf 등은 elements에 같은 형식으로 추가한다.",
+  "name": "Nb-Si-Ti",
+  "tdb_file": "data/tdb/여기에_승인된_삼원계_파일이름.tdb",
+  "base_element": "Nb",
+  "elements": {
+    "Si": {"min": 10.0, "max": 25.0, "step": 1.0},
+    "Ti": {"min": 0.0, "max": 30.0, "step": 1.0}
+  },
+  "temperature_C": {"min": 1000, "max": 1700, "step": 100},
+  "pressure_Pa": 101325,
+  "output_csv": "data/phase_grid_NbSiTi.csv",
+  "failed_csv": "data/phase_grid_NbSiTi_failed.csv"
+}

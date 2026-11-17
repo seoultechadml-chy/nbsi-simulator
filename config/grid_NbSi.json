@@ -1,0 +1,13 @@
+{
+  "_설명": "1차 목표: Nb-Si 이원계 격자 계산 설정. 범위를 바꾸려면 숫자만 고치면 된다.",
+  "name": "Nb-Si",
+  "tdb_file": "data/tdb/여기에_승인된_파일이름.tdb",
+  "base_element": "Nb",
+  "elements": {
+    "Si": {"min": 0.0, "max": 40.0, "step": 0.5}
+  },
+  "temperature_C": {"min": 1000, "max": 1700, "step": 50},
+  "pressure_Pa": 101325,
+  "output_csv": "data/phase_grid.csv",
+  "failed_csv": "data/phase_grid_failed.csv"
+}
