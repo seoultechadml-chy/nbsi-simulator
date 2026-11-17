@@ -60,6 +60,25 @@ pip install -r requirements.txt
 
 이후에는 터미널을 새로 열 때마다 3번(가상환경 켜기)만 하면 됩니다.
 
+## 데이터 파일 (공개 저장소에 없음)
+
+이 저장소는 공개(Public)라서 아래 파일은 올리지 않습니다 (`.gitignore`에 등록).
+각자 PC에 두고 사용합니다.
+
+| 파일 | 만드는 법 |
+|---|---|
+| `data/raw_user/A_NbSilicide_DB.xlsx`, `B_Nballoy_1117.xlsx` | 연구실 원본 DB를 이 이름으로 복사 |
+| `data/literature.csv` 등 | 원본 DB를 넣은 뒤 아래 두 명령 실행 |
+| `data/tdb/*.tdb` | NIMS CPDDB 등에서 직접 내려받기 (재배포 금지) |
+
+```bash
+python -m src.import_user_db
+```
+
+```bash
+python -m src.import_user_db --commit --by "승인자 이름" --basis "at.%"
+```
+
 ## 사용법
 
 ### TDB 후보 검증 → 승인
