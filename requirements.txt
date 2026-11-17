@@ -5,4 +5,5 @@ plotly>=5.20
 pandas>=2.0
 scikit-learn>=1.4
 matplotlib>=3.8
+openpyxl>=3.1         # 엑셀 DB 읽기
 pytest>=8.0        # 자동 점검(tests/)용
