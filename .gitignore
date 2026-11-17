@@ -19,3 +19,5 @@ data/phase_grid*_meta.json
 data/tdb_candidates/*_report.md
 data/tdb_candidates/*.png
 data/tdb_candidates/*/*.zip
+data/tdb_candidates/**/*_report.md
+data/tdb_candidates/**/*.png
