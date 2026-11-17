@@ -81,7 +81,7 @@ SANITY_RANGES = {
     "heat_treatment_time_h": (0, 2000),
 }
 
-COMPOSITION_BASIS_VALUES = ["at.% 공칭", "at.% 실측", "wt.% 공칭", "wt.% 실측"]
+COMPOSITION_BASIS_VALUES = ["at.% 공칭", "at.% 실측", "wt.% 공칭", "wt.% 실측", "at.%", "wt.%"]  # 뒤 둘: 공칭/실측 구분 미기재
 
 
 def empty(columns) -> pd.DataFrame:

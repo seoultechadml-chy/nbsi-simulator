@@ -292,20 +292,36 @@ def write_report(src, use, m, dups, st, excluded, no_meas):
     OUT_REPORT.write_text("\n".join(L), encoding="utf-8")
 
 
-def commit(by: str, basis: str | None):
+def commit(by: str, basis: str | None, exclude_bad_sum: bool = True):
+    """확인받은 미리보기를 literature.csv에 추가한다.
+
+    exclude_bad_sum: 조성 합이 100이 아닌 행은 넣지 않고 import_excluded.csv에 사유와 함께 남긴다.
+    """
     st = pd.read_csv(OUT_STAGING)
     lit = pd.read_csv(LIT) if LIT.exists() else pd.DataFrame(columns=LITERATURE_COLUMNS)
     if (lit.get("entry_method") == "파일 가져오기").any():
         raise SystemExit("[중단] literature.csv에 이미 가져온 행이 있습니다. 두 번 넣지 않도록 멈춥니다.")
-    st["approved_by"] = by
-    st["approved_date"] = date.today().isoformat()
     if basis:
         st["composition_basis"] = basis
+    bad = st["flags"].fillna("").str.contains("조성 합") if exclude_bad_sum else pd.Series(False, index=st.index)
+    if bad.any():
+        ex = st.loc[bad, ["origin_file", "origin_row", "alloy_id"]].assign(reason="조성 합이 100이 아님 (사용자 결정으로 제외)")
+        old = pd.read_csv(OUT_EXCLUDED) if OUT_EXCLUDED.exists() and OUT_EXCLUDED.stat().st_size > 5 else pd.DataFrame()
+        pd.concat([old, ex], ignore_index=True).drop_duplicates(["origin_file", "origin_row"]).to_csv(OUT_EXCLUDED, index=False, encoding="utf-8-sig")
+    st = st[~bad].copy()
+    st["approved_by"] = by
+    st["approved_date"] = date.today().isoformat()
+    # 승인 시점 기준으로 점검 표시를 다시 계산해 notes에 남긴다 (값은 바꾸지 않음)
+    re_flags = check_rows(st[LITERATURE_COLUMNS])
+    extra = st["flags"].fillna("").str.split("; ").map(lambda l: [x for x in l if "쉼표" in x])
     st["notes"] = st["notes"].fillna("").astype(str)
-    st.loc[st["flags"].notna(), "notes"] = (st["notes"] + "; 확인 필요: " + st["flags"].fillna("")).str.strip("; ")
+    for i in st.index:
+        f = [x for x in re_flags[i].split("; ") if x] + extra[i]
+        if f:
+            st.at[i, "notes"] = "; ".join(x for x in [st.at[i, "notes"], "확인 필요: " + ", ".join(f)] if x)
     out = pd.concat([lit, st[LITERATURE_COLUMNS]], ignore_index=True)
     out.to_csv(LIT, index=False, encoding="utf-8-sig")
-    print(f"literature.csv에 {len(st)}행 추가 (총 {len(out)}행)")
+    print(f"literature.csv에 {len(st)}행 추가 (총 {len(out)}행), 조성 합 문제로 제외 {int(bad.sum())}행")
 
 
 def main():
